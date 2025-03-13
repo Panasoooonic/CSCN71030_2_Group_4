@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include "User Authentication.h"
 
+#define ACTIVE 1
+#define LOCKED 0
+#define MAX_ATTEMPTS 3
+
 void createAccount() {
     FILE* file = fopen("accounts.txt", "a+");  // Open file in read/write mode
     if (!file) {
@@ -12,6 +16,7 @@ void createAccount() {
     }
 
     Account acc;
+    Account tempAcc;  // Temporary account structure for reading file data
     char usernameToCheck[50];
     int usernameExists = 0;
 
@@ -27,11 +32,9 @@ void createAccount() {
         printf("Enter Username (No space): ");
         scanf("%49s", acc.username);
 
-
-
         // Read through the file to check for an existing username
         rewind(file);  // Reset file pointer to the beginning
-        while (fscanf(file, "%49s %49s %49s %49s %d", acc.firstName, acc.lastName, usernameToCheck, acc.password, &acc.status) != EOF) {
+        while (fscanf(file, "%49s %49s %49s %49s %d", tempAcc.firstName, tempAcc.lastName, usernameToCheck, tempAcc.password, &tempAcc.status) != EOF) {
             if (strcmp(acc.username, usernameToCheck) == 0) {
                 usernameExists = 1;
                 printf("Username already exists. Choose another username.\n");
@@ -52,7 +55,8 @@ void createAccount() {
             printf("Password must be shorter than 15 characters. Try again.\n");
         }
 
-    } while (strlen(acc.password) < 8 || strlen(acc.password) > 15);  // Keep prompting until password is longer than 8 characters and shorter than 15 characters  
+    } while (strlen(acc.password) < 8 || strlen(acc.password) > 15);  // Ensure valid password length
+
     acc.status = ACTIVE;
 
     // Write the new account details to the file
@@ -88,7 +92,7 @@ int login() {
 
             while (attempts < MAX_ATTEMPTS) {
                 if (strcmp(acc.password, password) == 0) {
-                    printf("Login successful!\n");
+                    printf("Login successful! Welcome %s %s!\n", acc.firstName, acc.lastName);
                     fclose(file);
                     return 1;
                 }
@@ -101,6 +105,7 @@ int login() {
                     }
                 }
             }
+
             printf("Too many failed attempts. Account is now locked.\n");
             FILE* tempFile = fopen("temp.txt", "w");
             rewind(file);

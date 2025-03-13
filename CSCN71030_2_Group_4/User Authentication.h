@@ -1,9 +1,5 @@
 #pragma once
 
-#define MAX_ATTEMPTS 3
-#define ACTIVE 1
-#define LOCKED 0
-
 typedef struct {
     char firstName[50];
     char lastName[50];
