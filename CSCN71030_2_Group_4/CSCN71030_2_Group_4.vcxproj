@@ -129,11 +129,13 @@
   <ItemGroup>
     <ClCompile Include="AccManagement.c" />
     <ClCompile Include="Main.c" />
+    <ClCompile Include="transaction.c" />
     <ClCompile Include="User Authentication.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AccManagement.h" />
-    <ClInclude Include="User Authentication.h" />
+    <ClInclude Include="account_management.h" />
+    <ClInclude Include="transactions.h" />
+    <ClInclude Include="user_authentication.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

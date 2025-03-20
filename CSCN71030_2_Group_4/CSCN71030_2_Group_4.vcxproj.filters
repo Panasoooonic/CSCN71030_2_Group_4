@@ -24,12 +24,18 @@
     <ClCompile Include="AccManagement.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="transaction.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="User Authentication.h">
+    <ClInclude Include="user_authentication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AccManagement.h">
+    <ClInclude Include="account_management.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="transactions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
