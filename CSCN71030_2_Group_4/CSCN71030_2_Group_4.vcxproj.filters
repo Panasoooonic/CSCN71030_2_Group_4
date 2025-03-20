@@ -21,9 +21,15 @@
     <ClCompile Include="User Authentication.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AccManagement.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="User Authentication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AccManagement.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

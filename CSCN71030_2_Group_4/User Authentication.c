@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "User Authentication.h"
+#include "AccManagement.h"
 
 #define ACTIVE 1
 #define LOCKED 0
@@ -91,9 +92,11 @@ int login() {
             }
 
             while (attempts < MAX_ATTEMPTS) {
-                if (strcmp(acc.password, password) == 0) {
+                if (strcmp(acc.password, password) == 0) { // Successful login
                     printf("Login successful! Welcome %s %s!\n", acc.firstName, acc.lastName);
                     fclose(file);
+                    logicSuccess();
+
                     return 1;
                 }
                 else {

@@ -127,10 +127,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AccManagement.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="User Authentication.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AccManagement.h" />
     <ClInclude Include="User Authentication.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
