@@ -23,14 +23,6 @@ static int getUserChoice() {
 }
 
 int main() {
-    //// Allow setting max users from command line argument
-    //if (argc > 1) {
-    //    maxUsers = atoi(argv[1]);
-    //    if (maxUsers <= 0) {
-    //        printf("Invalid number of max users. Defaulting to 100.\n");
-    //        maxUsers = 100;
-    //    }
-    //}
 
     int maxUsers = 100;
 
