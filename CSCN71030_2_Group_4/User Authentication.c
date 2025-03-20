@@ -4,21 +4,7 @@
 char currentUser[MAX_USERNAME_LEN] = "";
 int userCount = 0;
 int maxUsers = 100;
-User* users = NULL;
-
-// Initialize user storage
-void initializeUsers() {
-    users = (User*)malloc(maxUsers * sizeof(User));
-    if (!users) {
-        printf("Memory allocation failed for users.\n");
-        exit(EXIT_FAILURE);
-    }
-}
-
-// Free allocated memory for users
-void freeUserMemory() {
-    free(users);
-}
+User* users;
 
 void saveUsersToFile() {
     FILE* file = fopen("users.txt", "w");
@@ -48,33 +34,24 @@ void loadUsersFromFile() {
     fclose(file);
 }
 
-// Register a new user
 void registerUser() {
     if (userCount >= maxUsers) {
-        maxUsers *= 2;
-        users = (User*)realloc(users, maxUsers * sizeof(User));
-        if (!users) {
-            printf("Memory allocation failed. Cannot register more users.\n");
-            return;
-        }
+        printf("User limit reached. Cannot register more users.\n");
+        return;
     }
 
     User newUser;
     printf("Enter First Name: ");
-    fgets(newUser.firstName, MAX_NAME_LEN, stdin);
-    newUser.firstName[strcspn(newUser.firstName, "\n")] = 0;
-
+    scanf("%s", newUser.firstName);
     printf("Enter Last Name: ");
-    fgets(newUser.lastName, MAX_NAME_LEN, stdin);
-    newUser.lastName[strcspn(newUser.lastName, "\n")] = 0;
+    scanf("%s", newUser.lastName);
 
+    // Check for duplicate username
     int isDuplicate;
     do {
         isDuplicate = 0;
         printf("Enter Username: ");
-        fgets(newUser.username, MAX_USERNAME_LEN, stdin);
-        newUser.username[strcspn(newUser.username, "\n")] = 0;
-
+        scanf("%s", newUser.username);
         for (int i = 0; i < userCount; i++) {
             if (strcmp(users[i].username, newUser.username) == 0) {
                 printf("Username already exists! Choose another one.\n");
@@ -84,24 +61,23 @@ void registerUser() {
         }
     } while (isDuplicate);
 
+    // Ensure password length is between 8 and 15 characters
     do {
         printf("Enter Password (8-15 characters): ");
-        fgets(newUser.password, MAX_PASSWORD_LEN, stdin);
-        newUser.password[strcspn(newUser.password, "\n")] = 0;
-
+        scanf("%s", newUser.password);
         int len = strlen(newUser.password);
         if (len < 8 || len > 15) {
             printf("Invalid password length. Try again.\n");
         }
     } while (strlen(newUser.password) < 8 || strlen(newUser.password) > 15);
 
-    newUser.status = 1;
+    newUser.status = 1;          // Account is active
+    newUser.failedAttempts = 0;  // No failed attempts on registration
     users[userCount++] = newUser;
     saveUsersToFile();
     printf("User registered successfully!\n");
 }
 
-// Login function
 void loginUser() {
     char username[MAX_USERNAME_LEN], password[MAX_PASSWORD_LEN];
     printf("Enter Username: ");
@@ -133,7 +109,7 @@ void loginUser() {
 
         if (strcmp(users[userIndex].password, password) == 0) {
             // Successful login
-            users[userIndex].failedAttempts = 0;  // Reset on success
+            users[userIndex].failedAttempts = 0;  // Reset failed attempts on success
             strcpy(currentUser, username);
             saveUsersToFile();
             printf("Login successful!\n");
@@ -147,7 +123,7 @@ void loginUser() {
                 printf("Wrong password! Try again. (Attempt %d of 3)\n", attempts);
             }
 
-            // Check if this was the third failed attempt
+            // Lock account after 3 failed attempts
             if (attempts == 3) {
                 users[userIndex].status = 0;  // Lock the account
                 saveUsersToFile();
@@ -155,5 +131,12 @@ void loginUser() {
                 return;
             }
         }
+    }
+}
+
+void freeUserMemory() {
+    if (users) {
+        free(users);
+        users = NULL;
     }
 }

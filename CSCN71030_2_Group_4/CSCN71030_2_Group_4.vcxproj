@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AccManagement.c" />
+    <ClCompile Include="account_management.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="transaction.c" />
     <ClCompile Include="User Authentication.c" />

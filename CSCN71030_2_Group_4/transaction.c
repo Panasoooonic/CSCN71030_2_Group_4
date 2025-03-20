@@ -1,35 +1,43 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "transactions.h"
 
-Transaction* transactions = NULL;
-int transactionCount = 0;
-int maxTransactions = DEFAULT_MAX_TRANSACTIONS;
+Transaction** transactions;
+int* transactionCount;
+double transactionLog[MAX_USERS][MAX_TRANSACTIONS] = { 0 };
 
-// Initialize memory for transactions
+// Initialize the transaction data structure
 void initializeTransactions() {
-    transactions = (Transaction*)malloc(maxTransactions * sizeof(Transaction));
-    if (!transactions) {
-        printf("Memory allocation failed for transactions.\n");
-        exit(EXIT_FAILURE);
+    transactions = (Transaction**)malloc(MAX_USERS * sizeof(Transaction*));
+    transactionCount = (int*)malloc(MAX_USERS * sizeof(int));
+    for (int i = 0; i < MAX_USERS; i++) {
+        transactions[i] = (Transaction*)malloc(MAX_TRANSACTIONS * sizeof(Transaction));
+        transactionCount[i] = 0;
     }
 }
 
-// Free allocated memory for transactions
-void freeTransactionMemory() {
-    free(transactions);
+// Log transaction amounts in the multi-dimensional array
+void logTransaction(int userId, int transactionId, double amount) {
+    if (userId < MAX_USERS && transactionId < MAX_TRANSACTIONS) {
+        transactionLog[userId][transactionId] = amount;
+        // Removed the unnecessary print statement
+    }
 }
 
 // Save transactions to file
 void saveTransactionsToFile() {
     FILE* file = fopen("transactions.txt", "w");
     if (!file) {
-        printf("Error opening transactions file for writing!\n");
+        printf("Error opening transactions file!\n");
         return;
     }
-    for (int i = 0; i < transactionCount; i++) {
-        fprintf(file, "%s;%s;%s;%.2f\n",
-            transactions[i].username, transactions[i].accountType,
-            transactions[i].transactionType, transactions[i].amount);
+    for (int i = 0; i < MAX_USERS; i++) {
+        for (int j = 0; j < transactionCount[i]; j++) {
+            fprintf(file, "%s;%s;%s;%.2f\n",
+                transactions[i][j].username,
+                transactions[i][j].accountType,
+                transactions[i][j].transactionType,
+                transactions[i][j].amount);
+        }
     }
     fclose(file);
 }
@@ -37,114 +45,82 @@ void saveTransactionsToFile() {
 // Load transactions from file
 void loadTransactionsFromFile() {
     FILE* file = fopen("transactions.txt", "r");
-    if (!file) {
-        printf("Transactions file not found. Initializing empty transactions list.\n");
-        return;
-    }
+    if (!file) return;
+    for (int i = 0; i < MAX_USERS; i++) transactionCount[i] = 0;
 
-    transactionCount = 0;
-    while (transactionCount < maxTransactions &&
-        fscanf(file, "%49[^;];%19[^;];%19[^;];%lf\n",
-            transactions[transactionCount].username,
-            transactions[transactionCount].accountType,
-            transactions[transactionCount].transactionType,
-            &transactions[transactionCount].amount) == 4) {
-        transactionCount++;
+    char username[MAX_USERNAME_LEN], accountType[20], transactionType[20];
+    double amount;
+    int userId = 0;
 
-        // Expand memory if needed
-        if (transactionCount >= maxTransactions) {
-            maxTransactions *= 2;
-            transactions = (Transaction*)realloc(transactions, maxTransactions * sizeof(Transaction));
-            if (!transactions) {
-                printf("Memory allocation failed while expanding transactions storage.\n");
-                exit(EXIT_FAILURE);
-            }
-        }
+    while (fscanf(file, "%49[^;];%19[^;];%19[^;];%lf\n",
+        username, accountType, transactionType, &amount) == 4) {
+        int userIndex = findAccountIndex(username, accountType);
+        if (userIndex == -1 || transactionCount[userId] >= MAX_TRANSACTIONS) continue;
+        Transaction* t = &transactions[userId][transactionCount[userId]++];
+        strcpy(t->username, username);
+        strcpy(t->accountType, accountType);
+        strcpy(t->transactionType, transactionType);
+        t->amount = amount;
+        logTransaction(userId, transactionCount[userId], amount);
     }
     fclose(file);
 }
 
 // Record a transaction
 void recordTransaction(const char* username, const char* accountType, const char* transactionType, double amount) {
-    if (transactionCount >= maxTransactions) {
-        maxTransactions *= 2;
-        Transaction* temp = (Transaction*)realloc(transactions, maxTransactions * sizeof(Transaction));
-        if (!temp) {
-            printf("Memory reallocation failed for transactions.\n");
-            return;
-        }
-        transactions = temp;
-    }
+    int userIndex = findAccountIndex(username, accountType);
+    if (userIndex == -1 || transactionCount[userIndex] >= MAX_TRANSACTIONS) return;
 
-    Transaction* t = &transactions[transactionCount++];
+    Transaction* t = &transactions[userIndex][transactionCount[userIndex]++];
     strcpy(t->username, username);
     strcpy(t->accountType, accountType);
     strcpy(t->transactionType, transactionType);
     t->amount = amount;
 
+    logTransaction(userIndex, transactionCount[userIndex], amount);
     saveTransactionsToFile();
 }
 
-// Deposit money into an account
+// Deposit function
 void deposit(const char* accountType, double amount) {
-    if (amount <= 0) {
-        printf("Error: Deposit amount must be greater than zero.\n");
-        return;
-    }
-
     int accountIndex = findAccountIndex(currentUser, accountType);
     if (accountIndex == -1) {
-        printf("Error: Account not found.\n");
+        printf("Account not found!\n");
         return;
     }
-
     accounts[accountIndex].balance += amount;
     saveAccountsToFile();
     recordTransaction(currentUser, accountType, "Deposit", amount);
-    printf("Deposited $%.2f into %s account successfully!\n", amount, accountType);
+    printf("Deposit successful! New balance: %.2f\n", accounts[accountIndex].balance);
 }
 
-// Withdraw money from an account
+// Withdraw function
 void withdraw(const char* accountType, double amount) {
-    if (amount <= 0) {
-        printf("Error: Withdrawal amount must be greater than zero.\n");
-        return;
-    }
-
     int accountIndex = findAccountIndex(currentUser, accountType);
     if (accountIndex == -1) {
-        printf("Error: Account not found.\n");
+        printf("Account not found!\n");
         return;
     }
-
     if (accounts[accountIndex].balance < amount) {
-        printf("Error: Insufficient funds.\n");
+        printf("Insufficient funds!\n");
         return;
     }
-
     accounts[accountIndex].balance -= amount;
     saveAccountsToFile();
     recordTransaction(currentUser, accountType, "Withdraw", amount);
-    printf("Withdrew $%.2f from %s account successfully!\n", amount, accountType);
+    printf("Withdrawal successful! New balance: %.2f\n", accounts[accountIndex].balance);
 }
 
-// Transfer money between users
+// Transfer function
 void transfer(const char* sender, const char* senderAccount, const char* receiver, const char* receiverAccount, double amount) {
-    if (amount <= 0) {
-        printf("Error: Transfer amount must be greater than zero.\n");
-        return;
-    }
-
     int senderIndex = findAccountIndex(sender, senderAccount);
     int receiverIndex = findAccountIndex(receiver, receiverAccount);
-
     if (senderIndex == -1 || receiverIndex == -1) {
-        printf("Error: Invalid sender or receiver account.\n");
+        printf("Error: Invalid account information.\n");
         return;
     }
-
     if (accounts[senderIndex].balance < amount) {
-        printf("Error: Insufficient funds.\n");
+        printf("Insufficient funds!\n");
         return;
     }
 
@@ -154,27 +130,36 @@ void transfer(const char* sender, const char* senderAccount, const char* receive
 
     recordTransaction(sender, senderAccount, "Transfer Out", amount);
     recordTransaction(receiver, receiverAccount, "Transfer In", amount);
-
-    printf("Transferred $%.2f from %s's %s account to %s's %s account successfully!\n",
-        amount, sender, senderAccount, receiver, receiverAccount);
+    printf("Transfer successful! %.2f transferred from %s to %s.\n", amount, senderAccount, receiverAccount);
 }
 
-// View transactions for the logged-in user
+// View transactions
+// View transactions
 void viewTransactions() {
-    if (transactionCount == 0) {
-        printf("No transactions found.\n");
-        return;
-    }
-
-    printf("\nTransactions for %s:\n", currentUser);
     int found = 0;
-    for (int i = 0; i < transactionCount; i++) {
-        if (strcmp(transactions[i].username, currentUser) == 0) {
-            printf("%s - %s: $%.2f\n", transactions[i].transactionType, transactions[i].accountType, transactions[i].amount);
-            found = 1;
+    printf("\nTransactions for %s:\n", currentUser);
+    for (int i = 0; i < MAX_USERS; i++) {
+        for (int j = 0; j < transactionCount[i]; j++) {
+            if (strcmp(transactions[i][j].username, currentUser) == 0) {
+                Transaction* t = &transactions[i][j];
+                printf("%s - %s: $%.2f\n", t->transactionType, t->accountType, t->amount);
+                found = 1;
+            }
         }
     }
     if (!found) {
         printf("No transactions found for %s.\n", currentUser);
     }
+}
+
+// Free dynamically allocated memory for transactions
+void freeTransactionMemory() {
+    for (int i = 0; i < MAX_USERS; i++) {
+        if (transactions[i]) {
+            free(transactions[i]);
+            transactions[i] = NULL;
+        }
+    }
+    free(transactions);
+    free(transactionCount);
 }

@@ -3,25 +3,25 @@
 
 #include "user_authentication.h"
 
-#define DEFAULT_MAX_ACCOUNTS 100 // Default initial allocation
+#define MAX_ACCOUNTS 3
+#define MAX_ACCOUNT_TYPE_LEN 20
 
 // Account Structure
 typedef struct {
     char username[MAX_USERNAME_LEN];
-    char accountType[20];
+    char accountType[MAX_ACCOUNT_TYPE_LEN];
     double balance;
 } Account;
 
-void initializeAccounts();
+// Function Prototypes
 void saveAccountsToFile();
 void loadAccountsFromFile();
 void createAccount(const char* username, const char* accountType, double initialBalance);
 void viewAccounts();
 void freeAccountMemory();
-int findAccountIndex(const char* username, const char* accountType);
 
+// Extern Variables
 extern Account* accounts;
 extern int accountCount;
-extern int maxAccounts;
 
 #endif // ACCOUNT_MANAGEMENT_H

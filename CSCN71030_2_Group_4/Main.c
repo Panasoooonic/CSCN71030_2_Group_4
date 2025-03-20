@@ -1,179 +1,123 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#define _CRT_SECURE_NO_WARNINGS
 #include "user_authentication.h"
 #include "account_management.h"
 #include "transactions.h"
 
-// Function to clear input buffer
-static void clearInputBuffer() {
-    while (getchar() != '\n'); // Flush input buffer
-}
-
-// Function to safely get user choice
-static int getUserChoice() {
-    int choice;
-    if (scanf("%d", &choice) != 1) {
-        clearInputBuffer();
-        return -1; // Invalid input
+int main(int argc, char* argv[]) {
+    // Handle command-line argument for maximum users
+    if (argc > 1) {
+        maxUsers = atoi(argv[1]);
+        if (maxUsers <= 0) {
+            printf("Invalid number of max users. Defaulting to 100.\n");
+            maxUsers = 100;
+        }
     }
-    clearInputBuffer(); // Ensure buffer is flushed
-    return choice;
-}
 
-int main() {
-
-    int maxUsers = 100;
-
-    // Initialize memory and load data
-    initializeUsers();
-    initializeAccounts();
+    // Initialize user and account data
+    users = (User*)malloc(maxUsers * sizeof(User));
+    accounts = (Account*)malloc(maxUsers * MAX_ACCOUNTS * sizeof(Account));
     initializeTransactions();
 
+    if (!users || !accounts) {
+        printf("Memory allocation failed.\n");
+        return 1;
+    }
+
+    // Load data from files
     loadUsersFromFile();
     loadAccountsFromFile();
     loadTransactionsFromFile();
 
     int choice;
     while (1) {
-        printf("\n--- Banking System Menu ---\n");
+        printf("\n--- Banking System ---\n");
         printf("1. Register\n2. Login\n3. Exit\nEnter choice: ");
-        choice = getUserChoice();
+        scanf("%d", &choice);
 
         if (choice == 1) {
             registerUser();
         }
         else if (choice == 2) {
             loginUser();
-            while (strlen(currentUser) > 0) { // While user is logged in
+            while (strlen(currentUser) > 0) {
                 printf("\n--- Welcome, %s ---\n", currentUser);
                 printf("1. View Accounts\n2. Make an Account\n3. Make a Transaction\n4. View Transactions\n5. Logout\nEnter choice: ");
-                choice = getUserChoice();
+                scanf("%d", &choice);
 
-                if (choice == 1) { // View Accounts
+                if (choice == 1) {
                     viewAccounts();
                 }
-                else if (choice == 2) { // Make an Account (Savings, Checking, Investing)
+                else if (choice == 2) {
                     char accountType[20];
                     double initialBalance;
-
-                    printf("\nSelect Account Type:\n1. Savings\n2. Checking\n3. Investing\nEnter choice: ");
-                    int accChoice = getUserChoice();
-
-                    if (accChoice == 1) {
-                        strcpy(accountType, "Savings");
-                    }
-                    else if (accChoice == 2) {
-                        strcpy(accountType, "Checking");
-                    }
-                    else if (accChoice == 3) {
-                        strcpy(accountType, "Investing");
-                    }
-                    else {
-                        printf("Invalid choice! Try again.\n");
-                        continue;
-                    }
-
-                    // Check for duplicate account
-                    if (findAccountIndex(currentUser, accountType) != -1) {
-                        printf("Error: You already have a %s account.\n", accountType);
-                        continue;
-                    }
-
-                    // Get initial balance
-                    printf("Enter Initial Deposit Amount: ");
-                    if (scanf("%lf", &initialBalance) != 1 || initialBalance < 0) {
-                        printf("Invalid deposit amount. Try again.\n");
-                        clearInputBuffer();
-                        continue;
-                    }
-
+                    printf("Enter Account Type (Savings/Checking/Investing): ");
+                    scanf("%s", accountType);
+                    printf("Enter Initial Balance: ");
+                    scanf("%lf", &initialBalance);
                     createAccount(currentUser, accountType, initialBalance);
                 }
-                else if (choice == 3) { // Make a Transaction
-                    printf("\n1. Deposit\n2. Withdraw\n3. Transfer\nEnter choice: ");
-                    choice = getUserChoice();
+                else if (choice == 3) {
+                    printf("1. Deposit\n2. Withdraw\n3. Transfer\nEnter choice: ");
+                    scanf("%d", &choice);
 
                     char accountType[20], receiver[50], receiverAccount[20];
                     double amount;
 
-                    if (choice == 1) { // Deposit
+                    if (choice == 1) {
                         printf("Enter Account Type: ");
-                        fgets(accountType, sizeof(accountType), stdin);
-                        accountType[strcspn(accountType, "\n")] = 0; // Remove newline
-
+                        scanf("%s", accountType);
                         printf("Enter Amount: ");
-                        if (scanf("%lf", &amount) != 1) {
-                            printf("Invalid input for amount.\n");
-                            clearInputBuffer();
-                            continue;
-                        }
+                        scanf("%lf", &amount);
                         deposit(accountType, amount);
                     }
-                    else if (choice == 2) { // Withdraw
+                    else if (choice == 2) {
                         printf("Enter Account Type: ");
-                        fgets(accountType, sizeof(accountType), stdin);
-                        accountType[strcspn(accountType, "\n")] = 0;
-
+                        scanf("%s", accountType);
                         printf("Enter Amount: ");
-                        if (scanf("%lf", &amount) != 1) {
-                            printf("Invalid input for amount.\n");
-                            clearInputBuffer();
-                            continue;
-                        }
+                        scanf("%lf", &amount);
                         withdraw(accountType, amount);
                     }
-                    else if (choice == 3) { // Transfer
+                    else if (choice == 3) {
                         printf("Enter Sender Account: ");
-                        fgets(accountType, sizeof(accountType), stdin);
-                        accountType[strcspn(accountType, "\n")] = 0;
-
+                        scanf("%s", accountType);
                         printf("Enter Receiver Username: ");
-                        fgets(receiver, sizeof(receiver), stdin);
-                        receiver[strcspn(receiver, "\n")] = 0;
-
+                        scanf("%s", receiver);
                         printf("Enter Receiver Account: ");
-                        fgets(receiverAccount, sizeof(receiverAccount), stdin);
-                        receiverAccount[strcspn(receiverAccount, "\n")] = 0;
-
+                        scanf("%s", receiverAccount);
                         printf("Enter Amount: ");
-                        if (scanf("%lf", &amount) != 1) {
-                            printf("Invalid input for amount.\n");
-                            clearInputBuffer();
-                            continue;
-                        }
+                        scanf("%lf", &amount);
                         transfer(currentUser, accountType, receiver, receiverAccount, amount);
                     }
                     else {
-                        printf("Invalid choice! Try again.\n");
+                        printf("Invalid transaction choice.\n");
                     }
                 }
-                else if (choice == 4) { // View Transactions
+                else if (choice == 4) {
                     viewTransactions();
                 }
-                else if (choice == 5) { // Logout
+                else if (choice == 5) {
                     strcpy(currentUser, "");
                     printf("Logged out successfully.\n");
+                    break;
                 }
                 else {
-                    printf("Invalid choice! Try again.\n");
+                    printf("Invalid choice. Try again.\n");
                 }
             }
         }
         else if (choice == 3) {
-            printf("Exiting program...\n");
+            printf("Exiting the system. Goodbye!\n");
             break;
         }
         else {
-            printf("Invalid choice! Try again.\n");
+            printf("Invalid choice. Please try again.\n");
         }
     }
 
-    // Free allocated memory before exiting
+    // Clean up and free memory
     freeUserMemory();
     freeAccountMemory();
     freeTransactionMemory();
-
     return 0;
 }

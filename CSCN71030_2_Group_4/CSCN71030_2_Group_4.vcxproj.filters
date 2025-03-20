@@ -21,10 +21,10 @@
     <ClCompile Include="User Authentication.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AccManagement.c">
+    <ClCompile Include="transaction.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="transaction.c">
+    <ClCompile Include="account_management.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
