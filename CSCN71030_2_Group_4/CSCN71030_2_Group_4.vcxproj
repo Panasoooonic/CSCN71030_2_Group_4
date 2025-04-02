@@ -128,12 +128,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="account_management.c" />
+    <ClCompile Include="Invest.c" />
     <ClCompile Include="Main.c" />
     <ClCompile Include="transaction.c" />
     <ClCompile Include="User Authentication.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="account_management.h" />
+    <ClInclude Include="Invest.h" />
     <ClInclude Include="transactions.h" />
     <ClInclude Include="user_authentication.h" />
   </ItemGroup>

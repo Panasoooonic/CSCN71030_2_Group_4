@@ -3,6 +3,8 @@
 #include "user_authentication.h"
 #include "account_management.h"
 #include "transactions.h"
+#include "Invest.h"
+
 
 int main(int argc, char* argv[]) {
     // Handle command-line argument for maximum users
@@ -13,13 +15,12 @@ int main(int argc, char* argv[]) {
             maxUsers = 100;
         }
     }
-
     // Initialize user and account data
     users = (User*)malloc(maxUsers * sizeof(User));
-    accounts = (Account*)malloc(maxUsers * MAX_ACCOUNTS * sizeof(Account));
+    accounts = (Account*)malloc(100 * MAX_ACCOUNTS * sizeof(Account));
     initializeTransactions();
 
-    if (!users || !accounts) {
+    if (!accounts) {
         printf("Memory allocation failed.\n");
         return 1;
     }
@@ -28,6 +29,7 @@ int main(int argc, char* argv[]) {
     loadUsersFromFile();
     loadAccountsFromFile();
     loadTransactionsFromFile();
+
 
     int choice;
     while (1) {
@@ -58,7 +60,7 @@ int main(int argc, char* argv[]) {
                     createAccount(currentUser, accountType, initialBalance);
                 }
                 else if (choice == 3) {
-                    printf("1. Deposit\n2. Withdraw\n3. Transfer\nEnter choice: ");
+                    printf("1. Deposit\n2. Withdraw\n3. Transfer\n4. Invest\nEnter choice: ");
                     scanf("%d", &choice);
 
                     char accountType[20], receiver[50], receiverAccount[20];
@@ -88,6 +90,10 @@ int main(int argc, char* argv[]) {
                         printf("Enter Amount: ");
                         scanf("%lf", &amount);
                         transfer(currentUser, accountType, receiver, receiverAccount, amount);
+                    }
+                    else if (choice == 4)
+                    {
+                        Invest(argc);
                     }
                     else {
                         printf("Invalid transaction choice.\n");
