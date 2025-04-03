@@ -4,7 +4,7 @@
 #include <string.h>
 
 
-#include "invest.h"
+#include "Invest.h"
 #include "account_management.h"
 
 #pragma warning(disable : 4996)
@@ -87,7 +87,7 @@ double newInvestment(Account* acc, Market market, int inputMoney)
             market.Trend = rand() % (-20 + market.Trend) + market.Trend;
 
             float multiplier = (float)market.Trend / 100;
-            double newBalance = inputMoney * multiplier;
+            double newBalance = inputMoney + (inputMoney * multiplier);
             acc->balance += newBalance;
 
             printf("In 30 days, the market value of %s went from %d%% to: %d%%  you now have: %.1f$, \n", market.name, storedValue, market.Trend, acc->balance);
@@ -97,8 +97,9 @@ double newInvestment(Account* acc, Market market, int inputMoney)
     }
     else
     {
-        return 0.00;
+        
         printf("\n You do not have enough money in your balance!");
+        return 0.00;
     }
 }
 
@@ -124,10 +125,6 @@ void Invest(int marketCount)
     Market marketList[13];
     Account acc = accounts[accountIndex];
 
-    if (marketNum > 12) // check if argc exceeds maximum number of markets
-    {
-        marketNum = 12;
-    }
     // Create Markets with randomness
     for (int i = 0; i <= marketNum; i++)
     {
@@ -162,10 +159,13 @@ void Invest(int marketCount)
         printf("Please enter how much you would like to invest: ");
         scanf_s("%d", &inputMoney);
         double newBalance = newInvestment(&acc, marketList[choice - 1], inputMoney);
+        if (newBalance > 0.00 || newBalance < 0.00)
+        {
+            accounts[accountIndex].balance = acc.balance;
+            recordTransaction(currentUser, "Investing", "Investment", newBalance);
+            saveAccountsToFile();
+        }
 
-        accounts[accountIndex].balance = acc.balance;
-        recordTransaction(currentUser, "Investing", "Investment", newBalance);
-        saveAccountsToFile();
     }
     else
     {

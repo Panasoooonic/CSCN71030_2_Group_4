@@ -17,6 +17,7 @@ typedef struct {
 void saveAccountsToFile();
 void loadAccountsFromFile();
 void createAccount(const char* username, const char* accountType, double initialBalance);
+int findAccountIndex(const char* username, const char* accountType);
 void viewAccounts();
 void freeAccountMemory();
 

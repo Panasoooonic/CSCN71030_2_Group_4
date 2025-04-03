@@ -1,2 +1,0 @@
-Lnur5;Savings;2000.00
-username1;Investing;172.00

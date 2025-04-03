@@ -8,13 +8,13 @@
 
 int main(int argc, char* argv[]) {
     // Handle command-line argument for maximum users
-    if (argc > 1) {
+   /* if (argc > 1) {
         maxUsers = atoi(argv[1]);
         if (maxUsers <= 0) {
             printf("Invalid number of max users. Defaulting to 100.\n");
             maxUsers = 100;
         }
-    }
+    }*/
     // Initialize user and account data
     users = (User*)malloc(maxUsers * sizeof(User));
     accounts = (Account*)malloc(100 * MAX_ACCOUNTS * sizeof(Account));
@@ -81,13 +81,13 @@ int main(int argc, char* argv[]) {
                         withdraw(accountType, amount);
                     }
                     else if (choice == 3) {
-                        printf("Enter Sender Account: ");
+                        printf("Enter Sender Account Type: ");
                         scanf("%s", accountType);
                         printf("Enter Receiver Username: ");
                         scanf("%s", receiver);
-                        printf("Enter Receiver Account: ");
+                        printf("Enter Receiver Account Type: ");
                         scanf("%s", receiverAccount);
-                        printf("Enter Amount: ");
+                        printf("Enter Amount to Send: ");
                         scanf("%lf", &amount);
                         transfer(currentUser, accountType, receiver, receiverAccount, amount);
                     }

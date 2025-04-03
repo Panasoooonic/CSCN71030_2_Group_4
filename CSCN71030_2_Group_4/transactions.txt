@@ -1,2 +1,2 @@
-Lnur5;Savings;Deposit;1000.00
-username1;Investing;Investment;72.00
+username1;Investing;Transfer Out;250.00
+username2;Savings;Transfer In;250.00
